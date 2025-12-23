@@ -1,0 +1,14 @@
+# Core
+numpy
+pandas
+matplotlib
+scipy
+scikit-learn
+
+# Dataset + transformers
+datasets
+transformers
+tensorflow
+
+# Deployment
+django

@@ -1,0 +1,50 @@
+{% extends "predictor/base.html" %}
+
+{% block title %}Home | Tweet Emotion Recognition{% endblock %}
+
+{% block content %}
+  <section class="container">
+    <h1 class="title">Tweet Emotion Recognition</h1>
+    <p class="subtitle">Enter text and the model will predict an emotion label.</p>
+
+    <div class="box">
+      <form id="predictForm" method="POST" action="{% url 'predict' %}">
+        {% csrf_token %}
+
+        <label class="label" for="text">Text</label>
+        <textarea class="textarea" id="text" name="text" rows="4"
+                  placeholder="Type something..."></textarea>
+
+        <button class="primary-btn" type="submit">Predict</button>
+      </form>
+
+      <div id="result" class="result" aria-live="polite"></div>
+    </div>
+  </section>
+
+  <script>
+    // Keep this tiny inline script ONLY if you want AJAX results on the same page.
+    // If you want strictly "no JS in HTML", I can move this into static too.
+    const form = document.getElementById("predictForm");
+    const result = document.getElementById("result");
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      result.textContent = "Predicting...";
+
+      const formData = new FormData(form);
+      const res = await fetch(form.action, { method: "POST", body: formData });
+      const data = await res.json();
+
+      if (!res.ok) {
+        result.textContent = data.error || "Error";
+        return;
+      }
+
+      result.innerHTML = `
+        <div class="result-row"><span class="result-k">Prediction:</span> <span class="result-v">${data.pred_label}</span></div>
+        <div class="result-row"><span class="result-k">Text:</span> <span class="result-v">${data.text}</span></div>
+      `;
+    });
+  </script>
+{% endblock %}

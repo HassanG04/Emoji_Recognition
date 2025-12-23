@@ -1,0 +1,51 @@
+{% extends "predictor/base.html" %}
+
+{% block title %}Info | Tweet Emotion Recognition{% endblock %}
+
+{% block content %}
+  <section class="container">
+    <h1 class="title">Project Info</h1>
+
+    <div class="grid">
+      <!-- Box 1 -->
+      <a class="info-card" href="https://huggingface.co/datasets/dair-ai/emotion" target="_blank" rel="noopener noreferrer">
+        <h2 class="card-title">Dataset</h2>
+        <p class="card-text">
+          This NLP project predicts the most appropriate emotion (and a suitable emoji-style reaction)
+          for a given tweet/post, aiming to improve expressiveness and tone consistency in short social texts.
+        </p>
+        <p class="card-hint">Click to open the dataset source.</p>
+      </a>
+
+      <!-- Box 2 -->
+      <div class="info-card">
+        <h2 class="card-title">Author</h2>
+
+        <div class="split">
+          <div class="split-label">Name</div>
+          <a class="split-value link"
+             href="https://github.com/HassanG04"
+             target="_blank" rel="noopener noreferrer">
+            Hassan Mohamed Gebril
+          </a>
+        </div>
+
+        <div class="split">
+          <div class="split-label">ID</div>
+          <div class="split-value">231011262</div>
+        </div>
+      </div>
+
+      <!-- Box 3 -->
+      <div class="info-card">
+        <h2 class="card-title">Supervisor</h2>
+        <p class="card-text">
+          Supervised by
+          <a class="link" href="https://github.com/metwallusion" target="_blank" rel="noopener noreferrer">
+            Eng. Ahmed Metwalli
+          </a>
+        </p>
+      </div>
+    </div>
+  </section>
+{% endblock %}

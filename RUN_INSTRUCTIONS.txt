@@ -1,0 +1,15 @@
+1) Run the notebook and ensure it creates:
+   ./export_emotion_model/
+
+2) Copy export_emotion_model into the Django folder:
+   tweet_emotion_django_app/export_emotion_model
+
+3) Create venv + install:
+   pip install -r requirements.txt
+
+4) Run Django:
+   cd tweet_emotion_django_app
+   python manage.py runserver 0.0.0.0:8000
+
+5) Open:
+   http://127.0.0.1:8000/
