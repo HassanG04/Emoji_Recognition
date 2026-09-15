@@ -1,10 +1,11 @@
+import os
 from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = "replace-me"
-DEBUG = True
-ALLOWED_HOSTS = ["*"]
+SECRET_KEY = os.getenv("DJANGO_SECRET_KEY", "development-only-change-me")
+DEBUG = os.getenv("DJANGO_DEBUG", "false").lower() == "true"
+ALLOWED_HOSTS = os.getenv("DJANGO_ALLOWED_HOSTS", "localhost,127.0.0.1,testserver").split(",")
 
 INSTALLED_APPS = [
     "django.contrib.admin",

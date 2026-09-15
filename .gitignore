@@ -1,0 +1,8 @@
+__pycache__/
+*.py[cod]
+.env
+.venv/
+.pytest_cache/
+.ruff_cache/
+*.sqlite3
+tweet_emotion_django_app/export_emotion_model/tf_model.h5

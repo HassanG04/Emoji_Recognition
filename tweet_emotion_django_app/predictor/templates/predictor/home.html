@@ -41,10 +41,13 @@
         return;
       }
 
-      result.innerHTML = `
-        <div class="result-row"><span class="result-k">Prediction:</span> <span class="result-v">${data.pred_label}</span></div>
-        <div class="result-row"><span class="result-k">Text:</span> <span class="result-v">${data.text}</span></div>
-      `;
+      result.replaceChildren();
+      for (const [label, value] of [["Prediction", data.pred_label], ["Text", data.text]]) {
+        const row = document.createElement("div");
+        row.className = "result-row";
+        row.textContent = `${label}: ${value}`;
+        result.appendChild(row);
+      }
     });
   </script>
 {% endblock %}

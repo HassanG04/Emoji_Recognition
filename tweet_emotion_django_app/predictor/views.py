@@ -1,73 +1,42 @@
-# predictor/views.py
+import logging
 from pathlib import Path
-import json
 
 from django.http import JsonResponse
 from django.shortcuts import render
+from django.views.decorators.http import require_POST
 
-import tensorflow as tf
-from transformers import AutoTokenizer, TFAutoModelForSequenceClassification
+from .service import EmotionService
 
-# ----------------------------
-# Paths (MODEL_DIR must exist)
-# ----------------------------
-BASE_DIR = Path(__file__).resolve().parent.parent  # tweet_emotion_django_app/
-MODEL_DIR = BASE_DIR / "export_emotion_model"      # <- folder next to manage.py
-
-if not MODEL_DIR.exists():
-    raise RuntimeError(f"MODEL_DIR not found: {MODEL_DIR}")
-
-# ----------------------------
-# Load tokenizer + model ONCE
-# ----------------------------
-tokenizer = AutoTokenizer.from_pretrained(MODEL_DIR.as_posix(), local_files_only=True)
-model = TFAutoModelForSequenceClassification.from_pretrained(MODEL_DIR.as_posix(), local_files_only=True)
-
-# If you saved a label map during training, load it. Otherwise keep a default.
-LABEL_MAP_PATH = MODEL_DIR / "label_map.json"
-if LABEL_MAP_PATH.exists():
-    label_map = json.loads(LABEL_MAP_PATH.read_text(encoding="utf-8"))
-    # label_map is likely {"0":"sadness", ...} -> convert keys to int
-    label_map = {int(k): v for k, v in label_map.items()}
-else:
-    # Default (change if your dataset differs)
-    label_map = {0: "sadness", 1: "joy", 2: "love", 3: "anger", 4: "fear", 5: "surprise"}
+logger = logging.getLogger(__name__)
+service = EmotionService(Path(__file__).resolve().parents[1] / "export_emotion_model")
 
 
 def home(request):
     return render(request, "predictor/home.html")
-# predictor/views.py
+
 
 def info(request):
     return render(request, "predictor/info.html")
 
 
-def predict(request):
-    if request.method != "POST":
-        return JsonResponse({"error": "POST only"}, status=405)
-
-    text = request.POST.get("text", "").strip()
-    if not text:
-        return JsonResponse({"error": "Empty text"}, status=400)
-
-    inputs = tokenizer(
-        text,
-        return_tensors="tf",
-        truncation=True,
-        padding=True,
-        max_length=96
+def health(_request):
+    return JsonResponse(
+        {
+            "status": "ok",
+            "trained_weights_present": service.artifact_present,
+            "model_loaded": service.model is not None,
+            "model_version": service.version,
+        }
     )
 
-    outputs = model(inputs)
-    logits = outputs.logits
-    probs = tf.nn.softmax(logits, axis=1).numpy()[0].tolist()
 
-    pred_id = int(tf.argmax(logits, axis=1).numpy()[0])
-    pred_label = label_map.get(pred_id, str(pred_id))
-
-    return JsonResponse({
-        "text": text,
-        "pred_id": pred_id,
-        "pred_label": pred_label,
-        "probs": probs
-    })
+@require_POST
+def predict(request):
+    try:
+        result = service.predict(request.POST.get("text", ""))
+    except ValueError as exc:
+        return JsonResponse({"error": str(exc)}, status=400)
+    except Exception:
+        logger.exception("Emotion inference failed")
+        return JsonResponse({"error": "The trained emotion model is unavailable."}, status=503)
+    return JsonResponse(result)
